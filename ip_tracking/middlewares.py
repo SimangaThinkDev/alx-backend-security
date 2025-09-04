@@ -1,25 +1,33 @@
 # ip_tracking/middleware.py
 
-from django.http import HttpRequest
-from .models import RequestLog
+from django.http import HttpRequest, HttpResponseForbidden
+from .models import RequestLog, BlockedIP
 from datetime import datetime
 
 LOG_FILE_PATH = "logs.txt"
 
 def log_requests(get_response):
-    # One-time configuration and initialization.
 
     def middleware(request:HttpRequest):
-        # Code to be executed for each request before
-        # the view (and later middleware) are called.
+        # Validate incoming IP
+        ip:str = get_request_ip(request=request)
+
+        # Get IP's from blocked IP's
+        blocked_addresses = list( BlockedIP.objects.values_list( 
+            "ip_address", 
+            flat=True
+            ) )
+
+        if ip in blocked_addresses:
+            return HttpResponseForbidden( "Your IP has been blocked from accessing this site due to malicious activity." )
 
         response = get_response(request)
 
+        # Define attributes to log
         method = request.method
         cookies = request.COOKIES
         user = request.user
         is_authenticated:bool = user.is_authenticated
-        ip:str = get_request_ip(request=request)
         body = request.body
         content_type = request.content_type
         files = request.FILES
