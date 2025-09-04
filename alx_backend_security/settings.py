@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'alx_backend_security'
+    'alx_backend_security',
+    'django_celery',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +156,17 @@ RATELIMIT_DEFAULTS = {
     'anon': '5/m',  # anonymous users: 5 requests per minute
     'auth': '20/m', # authenticated users: 20 requests per minute
 }
+
+# CELERY
+
+# Redis as broker and result backend
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+# Optional: configure task serialization
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Optional: timezone
+CELERY_TIMEZONE = 'Africa/Johannesburg'

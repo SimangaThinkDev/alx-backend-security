@@ -2,3 +2,5 @@ django
 django-ipgeolocation
 django-redis
 django-ratelimit
+django-celery
+django-celery-results
