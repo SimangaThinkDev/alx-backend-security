@@ -148,3 +148,9 @@ CACHES = {
         }
     }
 }
+
+# Rate-Limits Declarations
+RATELIMIT_DEFAULTS = {
+    'anon': '5/m',  # anonymous users: 5 requests per minute
+    'auth': '20/m', # authenticated users: 20 requests per minute
+}

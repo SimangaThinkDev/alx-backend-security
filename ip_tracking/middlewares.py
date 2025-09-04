@@ -3,13 +3,26 @@
 from django.http import HttpRequest, HttpResponseForbidden
 from .models import RequestLog, BlockedIP
 from django_ip_geolocation.decorators import with_ip_geolocation
+from django_ratelimit.decorators import ratelimit
 from django.core.cache import cache
 
 
 LOG_FILE_PATH = "logs.txt"
 
+def rate_for_user(group, request: HttpRequest):
+    if request.user.is_authenticated:
+        return '10/m'  # Authenticated users
+    return '5/m'      # Anonymous users
+
+# Key function (optional, default 'user' or 'ip')
+def key_for_user(group, request: HttpRequest):
+    if request.user.is_authenticated:
+        return str(request.user.id)
+    return request.META.get('REMOTE_ADDR', 'anon')
+
 def log_requests(get_response):
 
+    @ratelimit(group=None, key=key_for_user, rate=rate_for_user, method=None, block=True)
     def middleware(request:HttpRequest):
         # Validate incoming IP
         ip:str = get_request_ip(request=request)
