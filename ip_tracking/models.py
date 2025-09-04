@@ -4,6 +4,8 @@ class RequestLog( models.Model ):
 
     ip_address = models.CharField( max_length=40 )
     path = models.CharField( max_length=255 )
+    country = models.CharField( max_length=255 )
+    city = models.CharField( max_length=255 )
     timestamp = models.DateTimeField( auto_now_add=True )
 
     def __str__(self):

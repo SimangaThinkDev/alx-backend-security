@@ -2,7 +2,9 @@
 
 from django.http import HttpRequest, HttpResponseForbidden
 from .models import RequestLog, BlockedIP
-from datetime import datetime
+from django_ip_geolocation.decorators import with_ip_geolocation
+from django.core.cache import cache
+
 
 LOG_FILE_PATH = "logs.txt"
 
@@ -32,6 +34,10 @@ def log_requests(get_response):
         content_type = request.content_type
         files = request.FILES
         path = request.path
+        
+        geoloc_obj = request.geolocation
+        country = geoloc_obj['country']
+        city = geoloc_obj['city']
 
         # So I have two loggers
 
@@ -47,7 +53,11 @@ def log_requests(get_response):
 [ Files ] : {files}
 """ )
             
-        log_db = RequestLog( ip_address=ip, path=path )
+        log_db = RequestLog( ip_address=ip, path=path, country=country, city=city )
+
+        # Unclear on what to cache. So I picked these two...
+        cache.set("blocked_ips", blocked_addresses, timeout=24*60*60)
+        cache.set("geoloc_results", geoloc_obj, timeout=24*60*60)
 
         log_db.save()
 
